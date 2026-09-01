@@ -1,13 +1,53 @@
- import { Router } from "express";
-import { getMe, loginUser, logoutUser, registerUser, updateUser } from "../controllers/auth.controller.js";
+import { Router } from "express";
+
+import {
+    getMe,
+    loginUser,
+    logoutUser,
+    registerUser,
+    updateUser
+} from "../controllers/auth.controller.js";
+
 import { protectRoute } from "../middleware/auth.middleware.js";
- const router = Router()
 
- router.post("/register", registerUser)
- router.post("/login", loginUser)
- router.post("/logout", logoutUser)
+import { validate } from "../middleware/validation.middleware.js";
 
- router.patch("/update", protectRoute, updateUser)
- router.get("/me", protectRoute, getMe)
+import {
+    registerSchema,
+    loginSchema,
+    updateUserSchema
+} from "../validators/auth.validator.js";
 
- export default router;
+const router = Router();
+
+router.post(
+    "/register",
+    validate(registerSchema),
+    registerUser
+);
+
+router.post(
+    "/login",
+    validate(loginSchema),
+    loginUser
+);
+
+router.post(
+    "/logout",
+    logoutUser
+);
+
+router.patch(
+    "/update",
+    protectRoute,
+    validate(updateUserSchema),
+    updateUser
+);
+
+router.get(
+    "/me",
+    protectRoute,
+    getMe
+);
+
+export default router;
