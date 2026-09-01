@@ -130,3 +130,105 @@ async (req:Request, res:Response): Promise <void> =>{
     }
 
 }
+
+export const logoutUser = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        res.clearCookie("token");
+
+        res.status(200).json({
+            message: "Logout successful",
+        });
+    } catch (error) {
+        console.error("Logout error:", error);
+
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+};
+
+export const updateUser = async (req:Request, res:Response): Promise<void> =>{
+    try {
+    const{name, email}= req.body;
+    
+    if(!name && !email){
+        res.status(400).json({
+            message:"Nothing to update"
+        })
+        return;
+    }
+   const user = await User.findById(req.userId);
+
+   if(!user){
+    res.status(404).json({
+        message: "User not found"
+    })
+    return;
+   }
+
+   if(name) user.name = name;
+   if (email) user.email= email;
+
+await user.save();
+
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+            },
+        });
+
+
+    } catch (error) {
+         console.error("Update profile error:", error);
+
+        res.status(500).json({
+            message: "Internal server error",
+        });
+
+
+    }
+}
+
+export const getMe =
+ async (req:Request, res:Response): Promise <void> =>{
+
+    try {
+    const userId = req.userId;
+
+     const user = await User.findById(userId).select("-password");
+
+     if(!user){
+        res.status(404).json({
+            message: "User not found",
+        })
+        return;
+     }
+
+     res.status(200).json({
+        user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+
+
+        }
+     })
+
+        
+    } catch (error) {
+         console.error("getMe error:", error);
+
+        res.status(500).json({
+            message: "Internal server error. BRB!",
+        });
+        
+    }
+
+ }

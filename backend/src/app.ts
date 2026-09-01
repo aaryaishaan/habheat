@@ -1,8 +1,11 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import healthRouter from "../src/routes/health.routes.js"
 import authRouter from "../src/routes/auth.routes.js"
 const app = express();
 
+
+app.use(cookieParser())
 app.use(express.json());
 app.use(express.urlencoded());
 
