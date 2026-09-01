@@ -12,6 +12,7 @@ export const generateToken = (userId:string): string =>{
     }
     const token= jwt.sign({userId}, ENV.JWT_SECRET, 
         {expiresIn: "7d"}
+        
     )
     return token;
 
