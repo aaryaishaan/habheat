@@ -11,6 +11,7 @@ function getEnv (key: string): string {
 
 export const ENV= {
     PORT: getEnv("PORT"),
-    MONGO_URI: getEnv("MONGO_URI")
+    MONGO_URI: getEnv("MONGO_URI"),
+    JWT_SECRET: getEnv("JWT_SECRET"),
 }
 
