@@ -1,9 +1,11 @@
-import { Request, Response } from "express";
+import { Request, Response,NextFunction } from "express";
 import { Task } from "../models/task.model.js";
+import { nextTick } from "node:process";
 
 export const createTask = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ): Promise<void> => {
     try {
         const { title, completed, date } = req.body;
@@ -21,17 +23,14 @@ export const createTask = async (
         });
 
     } catch (error) {
-        console.error("Create task error:", error);
-
-        res.status(500).json({
-            message: "Internal server error",
-        });
+        next(error);
     }
 };
 
 export const getTasks = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction,
 ): Promise<void> => {
     try {
         const tasks = await Task.find({
@@ -43,17 +42,14 @@ export const getTasks = async (
         });
 
     } catch (error) {
-        console.error("Get tasks error:", error);
-
-        res.status(500).json({
-            message: "Internal server error",
-        });
+       next(error)
     }
 };
 
 export const getTaskById = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ): Promise<void> => {
     try {
         const { id } = req.params;
@@ -76,17 +72,14 @@ export const getTaskById = async (
         });
 
     } catch (error) {
-        console.error("Get task error:", error);
-
-        res.status(500).json({
-            message: "Internal server error",
-        });
+       next(error)
     }
 };
 
 export const updateTask = async (
     req: Request,
-    res: Response
+    res: Response,
+    next:NextFunction,
 ): Promise<void> => {
     try {
         const { id } = req.params;
@@ -126,16 +119,13 @@ export const updateTask = async (
         });
 
     } catch (error) {
-        console.error("Update task error:", error);
-
-        res.status(500).json({
-            message: "Internal server error",
-        });
+        next(error)
     }
 };
 export const deleteTask = async (
     req: Request,
-    res: Response
+    res: Response,
+    next:NextFunction
 ): Promise<void> => {
     try {
         const { id } = req.params;
@@ -158,11 +148,7 @@ export const deleteTask = async (
         });
 
     } catch (error) {
-        console.error("Delete task error:", error);
-
-        res.status(500).json({
-            message: "Internal server error",
-        });
+        next(error)
     }
 };
 
