@@ -1,11 +1,11 @@
-import {Request, Response} from 'express';
+import {NextFunction, Request, Response} from 'express';
 
 import {User} from '../models/user.model.js';
 import {generateToken} from '../utils/jwt.js';
 import {comparePassword, hashPassword} from '../utils/password.js';
 
 
-export const registerUser = async(req: Request, res: Response):
+export const registerUser = async(req: Request, res: Response, next:NextFunction):
     Promise<void> => {
       try {
         const {name, email, password} = req.body;
@@ -49,13 +49,11 @@ export const registerUser = async(req: Request, res: Response):
 
 
       } catch (error) {
-        console.log(`Error in registering the user`, error)
-
-        res.status(500).json({message: 'Internal Server Error. BRB!'})
+        next(error)
       }
     }
 
-export const loginUser = async(req: Request, res: Response):
+export const loginUser = async(req: Request, res: Response, next:NextFunction):
     Promise<void> => {
       try {
         const {email, password} = req.body;
@@ -105,15 +103,11 @@ export const loginUser = async(req: Request, res: Response):
 
 
       } catch (error) {
-        console.error('Login error:', error);
-
-        res.status(500).json({
-          message: 'Internal server error. BRB!',
-        });
+        next(error)
       }
     }
 
-export const logoutUser = async(req: Request, res: Response): Promise<void> => {
+export const logoutUser = async(req: Request, res: Response, next:NextFunction): Promise<void> => {
   try {
     res.clearCookie('token');
 
@@ -121,15 +115,11 @@ export const logoutUser = async(req: Request, res: Response): Promise<void> => {
       message: 'Logout successful',
     });
   } catch (error) {
-    console.error('Logout error:', error);
-
-    res.status(500).json({
-      message: 'Internal server error',
-    });
+    next(error)
   }
 };
 
-export const updateUser = async(req: Request, res: Response):
+export const updateUser = async(req: Request, res: Response, next:NextFunction):
     Promise<void> => {
       try {
         const {name, email} = req.body;
@@ -159,15 +149,11 @@ export const updateUser = async(req: Request, res: Response):
 
 
       } catch (error) {
-        console.error('Update profile error:', error);
-
-        res.status(500).json({
-          message: 'Internal server error',
-        });
+        next(error)
       }
     }
 
-export const getMe = async(req: Request, res: Response): Promise<void> => {
+export const getMe = async(req: Request, res: Response, next:NextFunction): Promise<void> => {
   try {
     const userId = req.userId;
 
@@ -192,10 +178,6 @@ export const getMe = async(req: Request, res: Response): Promise<void> => {
 
 
   } catch (error) {
-    console.error('getMe error:', error);
-
-    res.status(500).json({
-      message: 'Internal server error. BRB!',
-    });
+    next(error)
   }
 }

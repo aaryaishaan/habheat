@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { dateSchema } from "./date.validator.js";
 
 export const createHabitSchema = z.object({
     name: z
@@ -10,12 +11,7 @@ export const createHabitSchema = z.object({
         .string()
         .optional(),
 
-    startDate: z
-        .string()
-        .regex(
-            /^\d{4}-\d{2}-\d{2}$/,
-            "Start date must be in YYYY-MM-DD format"
-        ),
+    startDate: dateSchema,
 });
 export const updateHabitSchema = z.object({
     name: z
@@ -30,10 +26,5 @@ export const updateHabitSchema = z.object({
 });
 
 export const toggleHabitSchema = z.object({
-    date: z
-        .string()
-        .regex(
-            /^\d{4}-\d{2}-\d{2}$/,
-            "Date must be in YYYY-MM-DD format"
-        ),
+    date: dateSchema,
 });

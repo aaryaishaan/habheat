@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { dateSchema } from "./date.validator.js";
 
 export const createTaskSchema = z.object({
     title: z
@@ -10,12 +11,7 @@ export const createTaskSchema = z.object({
         .boolean()
         .optional(),
 
-    date: z
-        .string()
-        .regex(
-            /^\d{4}-\d{2}-\d{2}$/,
-            "Date must be in YYYY-MM-DD format"
-        ),
+    date:dateSchema,
 });
 
 
@@ -30,12 +26,7 @@ export const updateTaskSchema = z.object({
         .boolean()
         .optional(),
 
-    date: z
-        .string()
-        .regex(
-            /^\d{4}-\d{2}-\d{2}$/,
-            "Date must be in YYYY-MM-DD format"
-        )
+    date: dateSchema
         .optional(),
 }).refine(
     (data) =>
