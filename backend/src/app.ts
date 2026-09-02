@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import healthRouter from "../src/routes/health.routes.js"
 import authRouter from "./routes/auth.routes.js"
 import habitRouter from "../src/routes/habit.routes.js"
+import taskRouter from "../src/routes/task.routes.js"
 const app = express();
 
 
@@ -18,6 +19,9 @@ app.use("/api/auth", authRouter)
 
 //HABIT ROUTE
 app.use("/api/habits", habitRouter)
+
+//TASKS ROUTE
+app.use("/api/tasks", taskRouter)
 
 //health route
 
