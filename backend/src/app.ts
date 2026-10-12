@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors"
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes.js"
-import habitRouter from "../src/routes/habit.routes.js"
-import taskRouter from "../src/routes/task.routes.js"
+import habitRouter from "./routes/habit.routes.js";
+import taskRouter from "./routes/task.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { ENV } from "./config/env.js";
 const app = express();
