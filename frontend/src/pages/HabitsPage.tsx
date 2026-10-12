@@ -11,9 +11,16 @@ import {
 
 import { Button } from "@/components/ui/button";
 import CreateHabitDialog from "@/components/habits/CreateHabitDialog";
+import HabitHeatmap from "@/components/habits/HabitHeatmap";
 import { habitService, type Habit } from "@/services/habit.service";
 
-const habitColors = ["#22c55e", "#3b82f6", "#a855f7", "#f97316", "#ec4899"];
+const habitColors = [
+  "#22c55e",
+  "#3b82f6",
+  "#a855f7",
+  "#f97316",
+  "#ec4899",
+];
 
 function getToday(): string {
   const now = new Date();
@@ -85,7 +92,9 @@ export default function HabitsPage() {
       });
 
       setHabits((current) =>
-        current.map((habit) => (habit._id === id ? updatedHabit : habit)),
+        current.map((habit) =>
+          habit._id === id ? updatedHabit : habit,
+        ),
       );
 
       cancelEditing();
@@ -110,7 +119,14 @@ export default function HabitsPage() {
 
     try {
       await habitService.delete(habit._id);
-      setHabits((current) => current.filter((item) => item._id !== habit._id));
+
+      setHabits((current) =>
+        current.filter((item) => item._id !== habit._id),
+      );
+
+      if (editingId === habit._id) {
+        cancelEditing();
+      }
     } catch (err) {
       setActionError(
         err instanceof Error ? err.message : "Failed to delete habit.",
@@ -133,7 +149,9 @@ export default function HabitsPage() {
       );
 
       setHabits((current) =>
-        current.map((item) => (item._id === habit._id ? updatedHabit : item)),
+        current.map((item) =>
+          item._id === habit._id ? updatedHabit : item,
+        ),
       );
     } catch (err) {
       setActionError(
@@ -148,6 +166,7 @@ export default function HabitsPage() {
 
   return (
     <section className="space-y-6">
+      {/* Page heading and actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">My Habits</h1>
@@ -169,11 +188,14 @@ export default function HabitsPage() {
           </Button>
 
           <CreateHabitDialog
-            onCreated={(habit) => setHabits((current) => [habit, ...current])}
+            onCreated={(habit) =>
+              setHabits((current) => [habit, ...current])
+            }
           />
         </div>
       </div>
 
+      {/* Errors from edit, delete, or completion actions */}
       {actionError && (
         <div
           role="alert"
@@ -190,6 +212,7 @@ export default function HabitsPage() {
         </div>
       )}
 
+      {/* Loading, error, empty, and populated states */}
       {loading ? (
         <div className="rounded-xl border border-border p-10 text-center text-muted-foreground">
           Loading your habits...
@@ -219,7 +242,8 @@ export default function HabitsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {habits.map((habit) => {
-            const completedToday = habit.completedDates.includes(getToday());
+            const completedToday =
+              habit.completedDates.includes(getToday());
             const isEditing = editingId === habit._id;
 
             return (
@@ -228,6 +252,7 @@ export default function HabitsPage() {
                 className="rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
               >
                 {isEditing ? (
+                  /* Edit form */
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label
@@ -236,20 +261,24 @@ export default function HabitsPage() {
                       >
                         Habit name
                       </label>
+
                       <input
                         id={`edit-name-${habit._id}`}
                         type="text"
                         value={editName}
                         maxLength={100}
-                        onChange={(event) => setEditName(event.target.value)}
-                        autoFocus
                         required
+                        autoFocus
+                        onChange={(event) =>
+                          setEditName(event.target.value)
+                        }
                         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
 
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Colour</p>
+
                       <div className="flex gap-3">
                         {habitColors.map((color) => (
                           <button
@@ -278,6 +307,7 @@ export default function HabitsPage() {
                         <Check className="mr-1 size-4" />
                         {savingId === habit._id ? "Saving..." : "Save"}
                       </Button>
+
                       <Button
                         size="sm"
                         variant="outline"
@@ -289,6 +319,7 @@ export default function HabitsPage() {
                     </div>
                   </div>
                 ) : (
+                  /* Habit card */
                   <>
                     <div className="flex items-start gap-3">
                       <div
@@ -299,10 +330,14 @@ export default function HabitsPage() {
                       />
 
                       <div className="min-w-0 flex-1">
-                        <h2 className="truncate font-semibold">{habit.name}</h2>
+                        <h2 className="truncate font-semibold">
+                          {habit.name}
+                        </h2>
+
                         <p className="mt-1 text-sm text-muted-foreground">
                           Started {habit.startDate}
                         </p>
+
                         <p className="mt-3 text-sm text-muted-foreground">
                           {habit.completedDates.length}{" "}
                           {habit.completedDates.length === 1
@@ -312,12 +347,20 @@ export default function HabitsPage() {
                       </div>
                     </div>
 
+                    {/* Per-habit consistency heatmap */}
+                    <HabitHeatmap
+                      completedDates={habit.completedDates}
+                      color={habit.color || "#22c55e"}
+                    />
+
+                    {/* Daily completion */}
                     <Button
                       className="mt-5 w-full"
                       variant={completedToday ? "outline" : "default"}
                       onClick={() => void handleToggle(habit)}
                       disabled={
-                        togglingId === habit._id || deletingId === habit._id
+                        togglingId === habit._id ||
+                        deletingId === habit._id
                       }
                     >
                       {completedToday ? (
@@ -325,6 +368,7 @@ export default function HabitsPage() {
                       ) : (
                         <CalendarCheck className="mr-2 size-4" />
                       )}
+
                       {togglingId === habit._id
                         ? "Updating..."
                         : completedToday
@@ -332,6 +376,7 @@ export default function HabitsPage() {
                           : "Mark complete today"}
                     </Button>
 
+                    {/* Edit and delete actions */}
                     <div className="mt-3 flex gap-2">
                       <Button
                         variant="outline"
@@ -348,11 +393,14 @@ export default function HabitsPage() {
                         className="flex-1 text-destructive hover:text-destructive"
                         onClick={() => void handleDelete(habit)}
                         disabled={
-                          deletingId === habit._id || togglingId === habit._id
+                          deletingId === habit._id ||
+                          togglingId === habit._id
                         }
                       >
                         <Trash2 className="mr-2 size-4" />
-                        {deletingId === habit._id ? "Deleting..." : "Delete"}
+                        {deletingId === habit._id
+                          ? "Deleting..."
+                          : "Delete"}
                       </Button>
                     </div>
                   </>
