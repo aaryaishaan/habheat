@@ -5,7 +5,8 @@ import {generateToken} from '../utils/jwt.js';
 import {comparePassword, hashPassword} from '../utils/password.js';
 
 
-export const registerUser = async(req: Request, res: Response, next:NextFunction):
+export const registerUser = async(
+    req: Request, res: Response, next: NextFunction):
     Promise<void> => {
       try {
         const {name, email, password} = req.body;
@@ -31,10 +32,9 @@ export const registerUser = async(req: Request, res: Response, next:NextFunction
         res.cookie('token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000,
-
-        })
+        });
 
 
         res.status(201).json({
@@ -53,7 +53,7 @@ export const registerUser = async(req: Request, res: Response, next:NextFunction
       }
     }
 
-export const loginUser = async(req: Request, res: Response, next:NextFunction):
+export const loginUser = async(req: Request, res: Response, next: NextFunction):
     Promise<void> => {
       try {
         const {email, password} = req.body;
@@ -82,13 +82,12 @@ export const loginUser = async(req: Request, res: Response, next:NextFunction):
         const token = generateToken(user._id.toString());
 
         // send token
-
         res.cookie('token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
+        });
 
         res.status(200).json({
           message: 'User logged in Successfully.',
@@ -107,9 +106,14 @@ export const loginUser = async(req: Request, res: Response, next:NextFunction):
       }
     }
 
-export const logoutUser = async(req: Request, res: Response, next:NextFunction): Promise<void> => {
+export const logoutUser =
+    async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    res.clearCookie('token');
+   res.clearCookie("token", {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+});
 
     res.status(200).json({
       message: 'Logout successful',
@@ -119,41 +123,43 @@ export const logoutUser = async(req: Request, res: Response, next:NextFunction):
   }
 };
 
-export const updateUser = async(req: Request, res: Response, next:NextFunction):
-    Promise<void> => {
-      try {
-        const {name, email} = req.body;
+export const updateUser =
+    async(req: Request, res: Response, next: NextFunction):
+        Promise<void> => {
+          try {
+            const {name, email} = req.body;
 
 
-        const user = await User.findById(req.userId);
+            const user = await User.findById(req.userId);
 
-        if (!user) {
-          res.status(404).json({message: 'User not found'})
-          return;
+            if (!user) {
+              res.status(404).json({message: 'User not found'})
+              return;
+            }
+
+            if (name) user.name = name;
+            if (email) user.email = email;
+
+            await user.save();
+
+
+            res.status(200).json({
+              message: 'Profile updated successfully',
+              user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+              },
+            });
+
+
+          } catch (error) {
+            next(error)
+          }
         }
 
-        if (name) user.name = name;
-        if (email) user.email = email;
-
-        await user.save();
-
-
-        res.status(200).json({
-          message: 'Profile updated successfully',
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-          },
-        });
-
-
-      } catch (error) {
-        next(error)
-      }
-    }
-
-export const getMe = async(req: Request, res: Response, next:NextFunction): Promise<void> => {
+export const getMe =
+    async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = req.userId;
 
