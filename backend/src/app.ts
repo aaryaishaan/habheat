@@ -20,6 +20,14 @@ app.use(cookieParser())
 app.use(express.json());
 app.use(express.urlencoded());
 
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "HabHeat API",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 
 //ROUTES
 app.use("/api/auth", authRouter)
